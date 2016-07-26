@@ -4,7 +4,7 @@
   "description": "knock-knock electron app",
   "dependencies": {
     "aws-iot-device-sdk": "^1.0.12",
-    "menubar": "*"
+    "aws-sdk": "^2.4.9"
   },
   "devDependencies": {
     "electron-packager": "^7.2.0",
