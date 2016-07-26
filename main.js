@@ -37,7 +37,6 @@ AWS.config.credentials.get((err) => {
       return
     }
 
-    console.log(data)
     mqttClient.updateWebSocketCredentials(
       data.Credentials.AccessKeyId,
       data.Credentials.SecretKey,
@@ -50,7 +49,7 @@ AWS.config.credentials.get((err) => {
 
 let tray = null
 app.on('ready', () => {
-  tray = new Tray('IconTemplate.png')
+  tray = new Tray(__dirname + '/IconTemplate.png')
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Open',
