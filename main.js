@@ -22,7 +22,36 @@ let mqttClient = AWSIoT.device({
 mqttClient.on('connect', () => {
   contextMenu.items[0].enabled = true
 })
+mqttClient.on('error', () => {
+  console.log("Error event triggered")
+  if (contextMenu) contextMenu.items[0].enabled = false
+  fetchCognitoSession()
+})
+mqttClient.on('close', () => {
+  console.log("Close event triggered")
+  if (contextMenu) contextMenu.items[0].enabled = false
+  fetchCognitoSession()
+})
 
+let fetching = false
+let fetchCognitoSession = function () {
+  let identityId = AWS.config.credentials.identityId
+  if (identityId && !fetching) {
+    fetching = true
+    cognitoIdentity.getCredentialsForIdentity({ IdentityId: identityId }, function(err, data) {
+      fetching = false
+      if (err) {
+        console.log(err)
+        return
+      }
+
+      mqttClient.updateWebSocketCredentials(
+        data.Credentials.AccessKeyId,
+        data.Credentials.SecretKey,
+        data.Credentials.SessionToken)
+    })
+  }
+}
 
 let cognitoIdentity = new AWS.CognitoIdentity()
 AWS.config.credentials.get((err) => {
@@ -30,20 +59,7 @@ AWS.config.credentials.get((err) => {
     console.log(err)
     return
   }
-
-  cognitoIdentity.getCredentialsForIdentity({ IdentityId: AWS.config.credentials.identityId }, function(err, data) {
-    if (err) {
-      console.log(err)
-      return
-    }
-
-    mqttClient.updateWebSocketCredentials(
-      data.Credentials.AccessKeyId,
-      data.Credentials.SecretKey,
-      data.Credentials.SessionToken)
-  })
-
-
+  fetchCognitoSession()
   console.log("Cognito Identity Id: " + AWS.config.credentials.identityId)
 })
 
