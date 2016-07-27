@@ -1,6 +1,7 @@
 const {app, Menu, Tray} = require('electron')
 const AWS = require('aws-sdk')
 const AWSIoT = require('aws-iot-device-sdk')
+const storage = require('electron-json-storage')
 
 AWS.config.region = 'us-east-1'
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -18,9 +19,8 @@ let mqttClient = AWSIoT.device({
   debug: true
 })
 
-let connected = false
 mqttClient.on('connect', () => {
-  connected = true
+  contextMenu.items[0].enabled = true
 })
 
 
@@ -48,14 +48,19 @@ AWS.config.credentials.get((err) => {
 })
 
 let tray = null
+let contextMenu = null
 app.on('ready', () => {
   tray = new Tray(__dirname + '/IconTemplate.png')
-  const contextMenu = Menu.buildFromTemplate([
+  contextMenu = Menu.buildFromTemplate([
     {
       label: 'Open',
+      enabled: false,
       click() {
-        if (connected) mqttClient.publish('door', JSON.stringify({ event: 'open' }))
+        mqttClient.publish('door', JSON.stringify({ event: 'open' }))
       }
+    },
+    {
+      type: 'separator'
     },
     {
       label: 'Exit',
