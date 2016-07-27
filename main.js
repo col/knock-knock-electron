@@ -22,15 +22,16 @@ let mqttClient = AWSIoT.device({
 mqttClient.on('connect', () => {
   contextMenu.items[0].enabled = true
 })
-mqttClient.on('error', () => {
-  console.log("Error event triggered")
-  if (contextMenu) contextMenu.items[0].enabled = false
-  fetchCognitoSession()
-})
+let reconnectCount = 0
 mqttClient.on('close', () => {
   console.log("Close event triggered")
   if (contextMenu) contextMenu.items[0].enabled = false
-  fetchCognitoSession()
+  if (reconnectCount > 3) {
+    reconnectCount = 0
+    fetchCognitoSession()
+  } else {
+    reconnectCount++
+  }
 })
 
 let fetching = false
