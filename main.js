@@ -66,6 +66,7 @@ AWS.config.credentials.get((err) => {
 
 let tray = null
 let contextMenu = null
+app.dock.hide();
 app.on('ready', () => {
   tray = new Tray(__dirname + '/IconTemplate.png')
   contextMenu = Menu.buildFromTemplate([
