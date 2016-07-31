@@ -68,7 +68,7 @@ let tray = null
 let contextMenu = null
 app.dock.hide();
 app.on('ready', () => {
-  tray = new Tray(__dirname + '/IconTemplate.png')
+  tray = new Tray(__dirname + '/doorImage.png')
   contextMenu = Menu.buildFromTemplate([
     {
       label: 'Open',
